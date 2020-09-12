@@ -6,6 +6,8 @@ import ws from "gulp-webserver"
 import sass from "gulp-sass";
 import autop from "gulp-autoprefixer";
 import miniCSS from "gulp-csso";
+import bro from "gulp-bro"
+import babelify from "babelify"
 
 sass.compiler = require("node-sass");
 
@@ -26,8 +28,20 @@ const routes = {
         watch: "src/scss/**/*.scss",
         src: "src/scss/style.scss",
         dest: "build/css"
+    },
+    js: {
+        watch: "src/js/*",
+        src: "src/js/main.js",
+        dest: "build/js"
     }
+
 };
+
+const js = () => gulp.src(routes.js.src).pipe(bro({
+    transform: [babelify.configure({ presets: ["@babel/preset-env"] }, ['uglifyify', {
+        global: true
+    }])]
+})).pipe(gulp.dest(routes.js.dest))
 
 const img = () => gulp.src(routes.img.src).pipe(image()).pipe(gulp.dest(routes.img.dest));
 
@@ -43,13 +57,14 @@ const watch = () => {
     gulp.watch(routes.pug.watch, pug);
     gulp.watch(routes.img.src, img);
     gulp.watch(routes.scss.watch, styles);
+    gulp.watch(routes.js.watch, js);
 }
 // img src에 변동이 있을때마다 img 실행
 
 const prepare = gulp.series([clean, img])
 // img는 시간이 오래걸리므로 prepare에 넣음
 
-const assets = gulp.series([pug, styles])
+const assets = gulp.series([pug, styles, js])
 
 const postDev = gulp.parallel([webserver, watch])
 
