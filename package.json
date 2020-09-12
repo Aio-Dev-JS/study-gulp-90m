@@ -1,0 +1,8 @@
+{
+  "name": "study-gulp-90m",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Aio-Dev-JS/study-gulp-90m.git",
+  "author": "Aio-Dev-JS <AioDev.JS@gmail.com>",
+  "license": "MIT"
+}
