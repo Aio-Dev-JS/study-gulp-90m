@@ -8,6 +8,7 @@ import autop from "gulp-autoprefixer";
 import miniCSS from "gulp-csso";
 import bro from "gulp-bro"
 import babelify from "babelify"
+import ghPages from "gulp-gh-pages"
 
 sass.compiler = require("node-sass");
 
@@ -37,6 +38,9 @@ const routes = {
 
 };
 
+
+const gh = () => gulp.src("build/**/*").pipe(ghPages());
+
 const js = () => gulp.src(routes.js.src).pipe(bro({
     transform: [babelify.configure({ presets: ["@babel/preset-env"] }, ['uglifyify', {
         global: true
@@ -49,7 +53,7 @@ const styles = () => gulp.src(routes.scss.src).pipe(sass().on("error", sass.logE
 
 const pug = () => gulp.src(routes.pug.src).pipe(gpug()).pipe(gulp.dest(routes.pug.dest));
 
-const clean = () => del(["build"]);
+const clean = () => del(["build", ".publish"]);
 
 const webserver = () => gulp.src("build").pipe(ws({ livereload: true, open: true }));
 
@@ -66,11 +70,14 @@ const prepare = gulp.series([clean, img])
 
 const assets = gulp.series([pug, styles, js])
 
-const postDev = gulp.parallel([webserver, watch])
+const live = gulp.parallel([webserver, watch])
 
-export const dev = gulp.series([prepare, assets, postDev]);
+export const build = gulp.series([prepare, assets]);
+
+export const dev = gulp.series([build, live]);
 //  export는 package.json에서 쓸 함수에만 적용해주면 됨
 // const gulp = require("gulp"); 
 // 구 자바스크립트
 
 
+export const deploy = gulp.series([build, gh, clean])
